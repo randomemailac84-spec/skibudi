@@ -9,7 +9,7 @@ local soundId = "rbxassetid://137103670433139"
 local cr7AnimId = "rbxassetid://88322771999430"
 local cr7SoundId = "rbxassetid://132960304435042"
 
-local cooldownTime = 10
+local cooldownTime = 4
 local lastUsed = 0
 
 local function activateCR7(char, humanoid, button, toolLabel)
@@ -42,10 +42,10 @@ local function activateCR7(char, humanoid, button, toolLabel)
 
 	humanoid.WalkSpeed = 0
 	humanoid.JumpPower = 0
-	task.wait(1.2)
+	task.wait(1.3)
 
 	local dashTime = 2.9
-	local dashSpeed = 50.5
+	local dashSpeed = 65
 	local startTime = tick()
 
 	local connection
