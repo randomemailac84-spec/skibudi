@@ -1,0 +1,167 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+local blockedAnimId = "rbxassetid://80063325550268"
+local replacementAnimId = "rbxassetid://126734456236034"
+local soundId = "rbxassetid://137103670433139"
+local cr7AnimId = "rbxassetid://88322771999430"
+local cr7SoundId = "rbxassetid://132960304435042"
+
+local cooldownTime = 10
+local lastUsed = 0
+
+local function activateCR7(char, humanoid, button, toolLabel)
+	if tick() - lastUsed < cooldownTime then
+		return
+	end
+	lastUsed = tick()
+	local ball = char:FindFirstChild("Ball")
+	if not ball or not ball:IsA("MeshPart") then
+		return
+	end
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+	local anim = Instance.new("Animation")
+	anim.AnimationId = cr7AnimId
+	local animTrack = humanoid:LoadAnimation(anim)
+	animTrack:Play()
+	local dribbleSound = Instance.new("Sound")
+	dribbleSound.SoundId = cr7SoundId
+	dribbleSound.Volume = 1.5
+	dribbleSound.Parent = hrp
+	dribbleSound:Play()
+	dribbleSound.Ended:Connect(function()
+		dribbleSound:Destroy()
+	end)
+	humanoid.WalkSpeed = 0
+	humanoid.JumpPower = 0
+	task.wait(1.2)
+	local dashTime = 2.9
+	local dashSpeed = 50.5
+	local startTime = tick()
+	local connection
+	connection = RunService.Heartbeat:Connect(function(dt)
+		local elapsed = tick() - startTime
+		if elapsed >= dashTime then
+			connection:Disconnect()
+			humanoid.WalkSpeed = 16
+			humanoid.JumpPower = 50
+		else
+			local moveVector = hrp.CFrame.LookVector * dashSpeed * dt
+			hrp.CFrame = hrp.CFrame + moveVector
+		end
+	end)
+	task.spawn(function()
+		for i = cooldownTime, 1, -1 do
+			if toolLabel then
+				toolLabel.Text = "CR7 Dribble ("..i..")"
+			end
+			if button then
+				button.Text = "CR7 Dribble ("..i..")"
+			end
+			task.wait(1)
+		end
+		if toolLabel then
+			toolLabel.Text = "CR7 Dribble"
+		end
+		if button then
+			button.Text = "CR7 Dribble (For Mobile)"
+		end
+	end)
+end
+
+local function updateHotbar()
+	local hotbarGui = player:WaitForChild("PlayerGui"):FindFirstChild("Hotbar")
+	if not hotbarGui then return end
+	local backpackFrame = hotbarGui:FindFirstChild("Backpack")
+	if not backpackFrame then return end
+	local hotbarFrame = backpackFrame:FindFirstChild("Hotbar")
+	if not hotbarFrame then return end
+	for _, skillName in ipairs({"skill1", "skill4", "skill5"}) do
+		local skill = hotbarFrame:FindFirstChild(skillName)
+		if skill then
+			skill:Destroy()
+		end
+	end
+	local skill2 = hotbarFrame:FindFirstChild("skill2")
+	if skill2 then
+		skill2.Name = "skill10"
+		local baseFrame = skill2:FindFirstChild("Base")
+		if baseFrame then
+			local toolName = baseFrame:FindFirstChild("ToolName")
+			if toolName and toolName:IsA("TextLabel") then
+				toolName.Text = "CR7 Dribble"
+				return toolName
+			end
+		end
+	end
+	local skill3 = hotbarFrame:FindFirstChild("skill3")
+	if skill3 then
+		local baseFrame = skill3:FindFirstChild("Base")
+		if baseFrame then
+			local toolName = baseFrame:FindFirstChild("ToolName")
+			if toolName and toolName:IsA("TextLabel") then
+				toolName.Text = "Bicycle Kick"
+			end
+		end
+	end
+end
+
+local function onCharacterAdded(char)
+	local humanoid = char:WaitForChild("Humanoid")
+	local toolLabel = updateHotbar()
+	humanoid.AnimationPlayed:Connect(function(track)
+		if track.Animation and track.Animation.AnimationId == blockedAnimId then
+			track:Stop()
+			local replacementAnim = Instance.new("Animation")
+			replacementAnim.AnimationId = replacementAnimId
+			local newTrack = humanoid:LoadAnimation(replacementAnim)
+			newTrack:Play()
+			local hrp = char:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				local sound = Instance.new("Sound")
+				sound.SoundId = soundId
+				sound.Volume = 2.5
+				sound.Parent = hrp
+				sound:Play()
+				sound.Ended:Connect(function()
+					sound:Destroy()
+				end)
+			end
+			updateHotbar()
+		end
+	end)
+	UserInputService.InputBegan:Connect(function(input, processed)
+		if processed then return end
+		if input.KeyCode == Enum.KeyCode.Two then
+			activateCR7(char, humanoid, nil, toolLabel)
+		end
+	end)
+	local playerGui = player:WaitForChild("PlayerGui")
+	if not playerGui:FindFirstChild("CR7Button") then
+		local screenGui = Instance.new("ScreenGui")
+		screenGui.Name = "CR7Button"
+		screenGui.Parent = playerGui
+		local button = Instance.new("TextButton")
+		button.Size = UDim2.new(0, 200, 0, 50)
+		button.Position = UDim2.new(0.7, 0, 0.8, 0)
+		button.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+		button.Text = "CR7 Dribble (For Mobile)"
+		button.TextScaled = true
+		button.Draggable = true
+		button.Parent = screenGui
+		button.MouseButton1Click:Connect(function()
+			activateCR7(char, humanoid, button, toolLabel)
+		end)
+	end
+end
+
+if player.Character then
+	onCharacterAdded(player.Character)
+end
+player.CharacterAdded:Connect(onCharacterAdded)
+
+player:WaitForChild("PlayerGui"):WaitForChild("Hotbar")
+updateHotbar()
