@@ -17,16 +17,20 @@ local function activateCR7(char, humanoid, button, toolLabel)
 		return
 	end
 	lastUsed = tick()
+
 	local ball = char:FindFirstChild("Ball")
 	if not ball or not ball:IsA("MeshPart") then
 		return
 	end
+
 	local hrp = char:FindFirstChild("HumanoidRootPart")
 	if not hrp then return end
+
 	local anim = Instance.new("Animation")
 	anim.AnimationId = cr7AnimId
 	local animTrack = humanoid:LoadAnimation(anim)
 	animTrack:Play()
+
 	local dribbleSound = Instance.new("Sound")
 	dribbleSound.SoundId = cr7SoundId
 	dribbleSound.Volume = 1.5
@@ -35,12 +39,15 @@ local function activateCR7(char, humanoid, button, toolLabel)
 	dribbleSound.Ended:Connect(function()
 		dribbleSound:Destroy()
 	end)
+
 	humanoid.WalkSpeed = 0
 	humanoid.JumpPower = 0
 	task.wait(1.2)
+
 	local dashTime = 2.9
 	local dashSpeed = 50.5
 	local startTime = tick()
+
 	local connection
 	connection = RunService.Heartbeat:Connect(function(dt)
 		local elapsed = tick() - startTime
@@ -53,6 +60,7 @@ local function activateCR7(char, humanoid, button, toolLabel)
 			hrp.CFrame = hrp.CFrame + moveVector
 		end
 	end)
+
 	task.spawn(function()
 		for i = cooldownTime, 1, -1 do
 			if toolLabel then
@@ -75,16 +83,20 @@ end
 local function updateHotbar()
 	local hotbarGui = player:WaitForChild("PlayerGui"):FindFirstChild("Hotbar")
 	if not hotbarGui then return end
+
 	local backpackFrame = hotbarGui:FindFirstChild("Backpack")
 	if not backpackFrame then return end
+
 	local hotbarFrame = backpackFrame:FindFirstChild("Hotbar")
 	if not hotbarFrame then return end
+
 	for _, skillName in ipairs({"skill1", "skill4", "skill5"}) do
 		local skill = hotbarFrame:FindFirstChild(skillName)
 		if skill then
 			skill:Destroy()
 		end
 	end
+
 	local skill2 = hotbarFrame:FindFirstChild("skill2")
 	if skill2 then
 		skill2.Name = "skill10"
@@ -97,6 +109,7 @@ local function updateHotbar()
 			end
 		end
 	end
+
 	local skill3 = hotbarFrame:FindFirstChild("skill3")
 	if skill3 then
 		local baseFrame = skill3:FindFirstChild("Base")
@@ -112,13 +125,16 @@ end
 local function onCharacterAdded(char)
 	local humanoid = char:WaitForChild("Humanoid")
 	local toolLabel = updateHotbar()
+
 	humanoid.AnimationPlayed:Connect(function(track)
 		if track.Animation and track.Animation.AnimationId == blockedAnimId then
 			track:Stop()
+
 			local replacementAnim = Instance.new("Animation")
 			replacementAnim.AnimationId = replacementAnimId
 			local newTrack = humanoid:LoadAnimation(replacementAnim)
 			newTrack:Play()
+
 			local hrp = char:FindFirstChild("HumanoidRootPart")
 			if hrp then
 				local sound = Instance.new("Sound")
@@ -130,20 +146,24 @@ local function onCharacterAdded(char)
 					sound:Destroy()
 				end)
 			end
+
 			updateHotbar()
 		end
 	end)
+
 	UserInputService.InputBegan:Connect(function(input, processed)
 		if processed then return end
 		if input.KeyCode == Enum.KeyCode.Two then
 			activateCR7(char, humanoid, nil, toolLabel)
 		end
 	end)
+
 	local playerGui = player:WaitForChild("PlayerGui")
 	if not playerGui:FindFirstChild("CR7Button") then
 		local screenGui = Instance.new("ScreenGui")
 		screenGui.Name = "CR7Button"
 		screenGui.Parent = playerGui
+
 		local button = Instance.new("TextButton")
 		button.Size = UDim2.new(0, 200, 0, 50)
 		button.Position = UDim2.new(0.7, 0, 0.8, 0)
@@ -152,6 +172,7 @@ local function onCharacterAdded(char)
 		button.TextScaled = true
 		button.Draggable = true
 		button.Parent = screenGui
+
 		button.MouseButton1Click:Connect(function()
 			activateCR7(char, humanoid, button, toolLabel)
 		end)
