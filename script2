@@ -105,7 +105,9 @@ local function createButton(name, remoteArg)
 end
 
 createButton("Hog Rider (Free Early Access)", "Hog Rider")
-createButton("Ice Wizard (Free Early Access)", "Ice Wizard")
+createButton("Sparky (Free Early Access)", "Sparky")
+createButton("Golden Knight (Character)", "Golden Knight")
+createButton("Lumberjack (Bugged)", "Lumberjack")
 
 local equipRageButton = Instance.new("TextButton")
 equipRageButton.Size = UDim2.new(1, -12, 0, 45)
@@ -138,6 +140,12 @@ minimizeButton.MouseButton1Click:Connect(function()
         TweenService:Create(mainFrame, tweenInfo, {Size = originalSize}):Play()
         minimizeButton.Text = "-"
         minimized = false
+    else
+        TweenService:Create(mainFrame, tweenInfo, {Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 35)}):Play()
+        minimizeButton.Text = "+"
+        minimized = true
+    end
+end)        minimized = false
     else
         TweenService:Create(mainFrame, tweenInfo, {Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 35)}):Play()
         minimizeButton.Text = "+"
